@@ -1,0 +1,122 @@
+<!DOCTYPE>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" ></script>
+    <script>
+        var config = {
+            // Docs : test.mosquitto.org
+            wsbroker : "test.mosquitto.org",
+
+            // 1883 : MQTT, unencrypted
+            // 8883 : MQTT, encrypted
+            // 8884 : MQTT, encrypted, client certificate required
+            // 8080 : MQTT over WebSockets, unencrypted
+            // 8081 : MQTT over WebSockets, encrypted
+            wsport : 8080,
+            clientId : "MY_ID_" + parseInt(Math.random() * 100, 10),
+            topic : "/CARD_FLIP"
+        };
+
+        var client = new Paho.MQTT.Client(config.wsbroker, config.wsport, config.clientId);
+
+        client.onConnectionLost = function (responseObject) {
+            console.log("connection lost: " + responseObject.errorMessage);
+        };
+
+        var card1 = 0;
+        var card2 = 0;
+
+        client.onMessageArrived = function (message) {
+
+            console.log("- Topic : " + message.destinationName);
+            console.log("- Message : " + message.payloadString);
+
+            var json = JSON.parse( message.payloadString );
+            console.log("- json : " + json);
+
+            if(json.type == 'refresh') {
+                location.href = "card.html";
+            }
+
+            if(json.type == 'flip') {
+                if(json.from == 'card1') {
+                    card1 = json.num;
+                } else {
+                    card2 = json.num;
+                }
+            }
+
+
+            // 둘 다 셋팅이 끝나면
+            if(card1 != 0 && card2 != 0) {
+                var json = {
+                    type: 'finish',
+                    from: 'host',
+                    success: card1 == card2 ? true : false
+                }
+                card1 = 0;
+                card2 = 0;
+                sendMsg(JSON.stringify(json));
+            }
+        };
+
+        var options = {
+            timeout: 3, // unit: sec.
+            onSuccess: function () {
+                // QoS 0: 한 번만 전달하고 전달 여부는 확인하지 않음
+                // QoS 1: 적어도 한 번 이상 전달하고 전달 여부 확인
+                // QoS 2: 4단계의 핸드셰이킹(handshaking)을 통해 정확히 한 번만 전달
+                client.subscribe(config.topic, {qos: 2});
+                console.log("MQTT Connected");
+            },
+            onFailure: function (message) {
+                console.log("Connection failed: " + message.errorMessage);
+            }
+        };
+
+        function sendMsg(msg) {
+
+            var message = new Paho.MQTT.Message(msg);
+            message.destinationName = config.topic;
+            client.send(message);
+        }
+
+        function init() {
+            client.connect(options);
+        }
+
+    </script>
+</head>
+<body onload="init();">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12">
+                <h3>Simple MQTT Example with Javascript</h3>
+            </div>
+        </div><!-- /row -->
+        <div class="row">
+            <div class="col-sm-4">
+                <input type="text" placeholder="Write message" id="msg">
+                <button class="btn btn-primary btn-sm" onclick="sendMsg(JSON.stringify({type: 'refresh'}));">Refresh</button>
+                <button class="btn btn-primary btn-sm" onclick="sendMsg('Refresh');">Refresh</button>
+                <button class="btn btn-primary btn-sm" onclick="sendMsg('Refresh');">Refresh</button>
+                <button class="btn btn-primary btn-sm" onclick="sendMsg('Refresh');">Refresh</button>
+                <button class="btn btn-primary btn-sm" onclick="sendMsg('Refresh');">Refresh</button>
+            </div>
+        </div><!-- /row -->
+    </div><!-- /container -->
+
+
+
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+-->
+</body>
+
+</html>

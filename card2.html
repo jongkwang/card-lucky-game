@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!--
+        http://desandro.github.io/3dtransforms/docs/card-flip.html
+        http://desandro.github.io/3dtransforms/examples/card-01.html
+    -->
+    <meta charset="utf-8" />
+    <!-- disable zooming -->
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=0" />
+    <title>Card Flip</title>
+
+    <link rel="stylesheet" href="assets/css/card.css" media="screen" />
+    <style media="screen">
+        .container {
+            width: 100%;
+            height: 200px;
+            position: relative;
+            margin: 1px auto 1px;
+
+            -webkit-perspective: 800px;
+            -moz-perspective: 800px;
+            -o-perspective: 800px;
+            perspective: 800px;
+        }
+
+        .card {
+            width: 33%;
+            height: 100%;
+            border: 1px solid #CCC;
+            /*position: absolute;*/
+            -webkit-transition: -webkit-transform 1s;
+            -moz-transition: -moz-transform 1s;
+            -o-transition: -o-transform 1s;
+            transition: transform 1s;
+            -webkit-transform-style: preserve-3d;
+            -moz-transform-style: preserve-3d;
+            -o-transform-style: preserve-3d;
+            transform-style: preserve-3d;
+            float: left;
+        }
+
+        .card.flipped {
+            -webkit-transform: rotateY( 180deg );
+            -moz-transform: rotateY( 180deg );
+            -o-transform: rotateY( 180deg );
+            transform: rotateY( 180deg );
+        }
+
+        .card figure {
+            display: block;
+            height: 100%;
+            width: 100%;
+            /*line-height: 160px;*/
+            color: white;
+            text-align: center;
+            font-weight: bold;
+            font-size: 30px;
+            position: absolute;
+            -webkit-backface-visibility: hidden;
+            -moz-backface-visibility: hidden;
+            -o-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+
+        .card .front {
+            background: red;
+        }
+
+        .card .back {
+            background: blue;
+            -webkit-transform: rotateY( 180deg );
+            -moz-transform: rotateY( 180deg );
+            -o-transform: rotateY( 180deg );
+            transform: rotateY( 180deg );
+        }
+    </style>
+</head>
+<body style="width:100%">
+
+
+<section class="container">
+    <div class="card" data-num="1">
+        <figure class="front"><br>t'way</figure>
+        <figure class="back"><br>t'way</figure>
+    </div>
+    <div class="card" data-num="2">
+        <figure class="front"><br>항공</figure>
+        <figure class="back"><br>항공</figure>
+    </div>
+    <div class="card" data-num="3">
+        <figure class="front"><br>Seoul</figure>
+        <figure class="back"><br>Seoul</figure>
+    </div>
+</section>
+
+<section class="container">
+    <div class="card" data-num="4">
+        <figure class="front"><br>Tokyo</figure>
+        <figure class="back"><br>Tokyo</figure>
+    </div>
+    <div class="card" data-num="5">
+        <figure class="front"><br>Macau</figure>
+        <figure class="back"><br>Macau</figure>
+    </div>
+    <div class="card" data-num="6">
+        <figure class="front"><br>Saipan</figure>
+        <figure class="back"><br>Saipan</figure>
+    </div>
+</section>
+
+<section class="container">
+    <div class="card" data-num="7">
+        <figure class="front"><br>Sang<br>Hai</figure>
+        <figure class="back"><br>Sang<br>Hai</figure>
+    </div>
+    <div class="card" data-num="8">
+        <figure class="front"><br>Hong<br>Kong</figure>
+        <figure class="back"><br>Hong<br>Kong</figure>
+    </div>
+    <div class="card" data-num="9">
+        <figure class="front"><br>Guam</figure>
+        <figure class="back"><br>Guam</figure>
+    </div>
+</section>
+
+
+<div class="modal fade" id="SuccessModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 320px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title"><span class="btn btn-warning btn-xs">성공!!</span> 축하합니다</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning pre text-center">
+                    <h4 style="margin-bottom: 0"><span class="btn btn-warning btn-xs">당첨</span> 이벤트에 당첨 되었습니다</h4>
+                    <div id="List_UncertainMsg"><span style="font-size: 24px;">훗카이도 왕복 항공권이 당첨되었습니다!!</span>
+                        <br>
+                        <br>
+                        <small>- 당첨일로 부터 6개월까지 수령하셔야 합니다 -</small>
+                        <br>
+                        <small>- 제세공과금은 본인 부담입니다 -</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-primary btn-warning" data-dismiss="modal" onclick="sendMsg(JSON.stringify({type: 'refresh'}));">Close</button>
+                    <!--<button class="btn btn-primary btn-warning" type="button" onclick="frmSearchAd()">-->
+                    <!--<span class="glyphicon glyphicon-search"></span> PC 순위 조회</button>-->
+
+                    <!-- 등록 버튼 조건 끝-->
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="FailModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width: 320px;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title"><span class="btn btn-warning btn-xs">꽝!!</span> 아쉽습니다</h4>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning pre text-center">
+                    <h4 style="margin-bottom: 0"><span class="btn btn-warning btn-xs">아이고</span> 안타깝습니다</h4>
+                    <div id=""><span style="font-size: 24px;">이벤트에 탈락 하였습니다</span>
+                        <br>
+                        <br>
+                        <small>- 다시한번 도전해 보세요 -</small>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="pull-right">
+                    <button type="button" class="btn btn-primary btn-warning" data-dismiss="modal" onclick="sendMsg(JSON.stringify({type: 'refresh'}));">Close</button>
+                    <!--<button class="btn btn-primary btn-warning" type="button" onclick="frmSearchAd()">-->
+                    <!--<span class="glyphicon glyphicon-search"></span> PC 순위 조회</button>-->
+
+                    <!-- 등록 버튼 조건 끝-->
+                </div>
+            </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
+</div>
+
+
+<p id="disclaimer">Sorry, your browser does not support CSS 3D transforms. This example may be broken.</p>
+
+
+<!-- jQuery 1.12 -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<script src="assets/js/utils.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" ></script>
+<script>
+    var config = {
+        // Docs : test.mosquitto.org
+        wsbroker : "test.mosquitto.org",
+
+        // 1883 : MQTT, unencrypted
+        // 8883 : MQTT, encrypted
+        // 8884 : MQTT, encrypted, client certificate required
+        // 8080 : MQTT over WebSockets, unencrypted
+        // 8081 : MQTT over WebSockets, encrypted
+        wsport : 8080,
+        clientId : "MY_ID_" + parseInt(Math.random() * 100, 10),
+        topic : "/CARD_FLIP"
+    };
+
+    var client = new Paho.MQTT.Client(config.wsbroker, config.wsport, config.clientId);
+
+    client.onConnectionLost = function (responseObject) {
+        console.log("connection lost: " + responseObject.errorMessage);
+    };
+
+    client.onMessageArrived = function (message) {
+        console.log("- Topic : " + message.destinationName);
+        console.log("- Message : " + message.payloadString);
+
+        var json = JSON.parse( message.payloadString );
+        console.log("- json : " + json);
+
+        if(json.type == 'refresh') {
+            location.href = "card2.html";
+        }
+
+        if(json.type == 'finish') {
+            if(json.success) {
+                console.log("SUCCESS");
+                $('#SuccessModal').modal('show');
+
+            } else {
+                console.log("FAIL");
+                $('#FailModal').modal('show');
+            }
+        }
+    };
+
+    var options = {
+        timeout: 3, // unit: sec.
+        onSuccess: function () {
+            console.log("MQTT Connected");
+            // QoS 0: 한 번만 전달하고 전달 여부는 확인하지 않음
+            // QoS 1: 적어도 한 번 이상 전달하고 전달 여부 확인
+            // QoS 2: 4단계의 핸드셰이킹(handshaking)을 통해 정확히 한 번만 전달
+            client.subscribe(config.topic, {qos: 2});
+
+            var card = document.querySelectorAll('.card');
+            for( var i=0; i<card.length; i++) {
+                document.querySelectorAll('.card')[i].addEventListener( 'click', function(){
+
+                    this.toggleClassName('flipped');
+                    //sendMsg(this.getAttribute("data-num"));
+
+                    var json = {
+                        type: 'flip',
+                        from: 'card2',
+                        num: this.getAttribute("data-num")
+                    }
+                    sendMsg( JSON.stringify(json) );
+
+                }, false);
+            }
+        },
+        onFailure: function (message) {
+            console.log("Connection failed: " + message.errorMessage);
+        }
+    };
+
+    function sendMsg(msg) {
+
+        var message = new Paho.MQTT.Message(msg);
+        message.destinationName = config.topic;
+        client.send(message);
+    }
+</script>
+<script>
+    var init = function() {
+
+
+        // MQTT init
+        client.connect(options);
+    };
+
+    window.addEventListener('DOMContentLoaded', init, false);
+</script>
+</body>
+</html>
